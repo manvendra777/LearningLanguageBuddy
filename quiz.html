@@ -84,6 +84,7 @@
     fetch('http://localhost:5000/update_score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ score: currentScore, result: result })
     })
     .then(response => response.json())

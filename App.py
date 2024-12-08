@@ -42,8 +42,8 @@ region_name = 'us-west-1'  # Change to your AWS region
 cognito = boto3.client('cognito-idp', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 dynamodb = boto3.resource('dynamodb', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 users_table = dynamodb.Table('Users')  # Reference to the 'Users' table
-
-print(users_table)
+response = users_table.scan()
+print(response)
 @app.route('/register', methods=['POST'])
 def register():
     """
@@ -76,7 +76,8 @@ def register():
                   
             }
         )
-
+        temp = users_table.scan()
+        print(temp)
         return jsonify({'message': 'User registered successfully', 'user': response}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -177,7 +178,7 @@ def update_score():
     """
     Update the user's score based on the quiz result and update their level in the Users table.
     """
-    username = request.json.get('username')  # Assume username is passed in the request
+    username = session.get('username')  # Assume username is passed in the request
     score = request.json.get('score', 0)
     result = request.json.get('result')  # 'correct' or 'wrong'
 
@@ -201,15 +202,16 @@ def update_score():
 
     try:
         # Fetch the user's current level from the Users table
+        print(username)
         response = users_table.get_item(Key={'username': username})
-        current_level = response.get('Item', {}).get('level', 'beginner')
+        current_level = response.get('Item', {}).get('score', 0)
 
         # Update the level in the Users table if it has changed
         if current_level != level:
             users_table.update_item(
                 Key={'username': username},
-                UpdateExpression='SET level = :level',
-                ExpressionAttributeValues={':level': level}
+                UpdateExpression='SET score = :score',
+                ExpressionAttributeValues={':score': score}
             )
         print(jsonify({'score': score, 'level': level}))
         return jsonify({'score': score, 'level': level}), 200
