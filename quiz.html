@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        #submitAnswer { margin-top: 20px; }
+        #resultDisplay { margin-top: 20px; color: red; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Quiz Time!</h1>
+    <div id="questionContainer"></div>
+    <button id="submitAnswer" onclick="submitAnswer()">Submit Answer</button>
+    <div id="resultDisplay"></div>
+
+    <script>
+        let currentQuestions = [];  // Array to store all questions
+        let currentIndex = 0;       // Index to keep track of the current question
+
+        // Function to load questions from the backend server
+        function loadQuiz() {
+            fetch('http://localhost:5000/get_all_questions') // Update this URL to your Flask server's URL
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch questions');
+                }
+                return response.json();
+            })
+            .then(data => {
+                currentQuestions = data;
+                console.log(currentQuestions)
+                if (currentQuestions.length > 0) {
+                    displayQuestion(currentQuestions[currentIndex]); // Display the first question
+                } else {
+                    document.getElementById('questionContainer').textContent = "No questions available";
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching questions:', error);
+                document.getElementById('questionContainer').textContent = "Error loading questions.";
+            });
+        }
+
+        // Function to display the current question and its options
+        function displayQuestion(questionObj) {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `<p>${questionObj.Question}</p>`;
+            let arr = questionObj.Options.split(",")
+            arr = arr.map(function (el) {
+                    return el.trim();
+                    });
+            arr.forEach((option, index) => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="radio" name="answer" value="${option}"> ${option}<br>`;
+                container.appendChild(label);
+            });
+        }
+
+        // Function to check the answer
+        function submitAnswer() {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            const resultDisplay = document.getElementById('resultDisplay');
+
+            if (!selected) {
+                resultDisplay.textContent = "Please select an answer.";
+                return;
+            }
+
+            const correctAnswer = currentQuestions[currentIndex]["Correct Answer"];
+            if (selected.value === correctAnswer) {
+                resultDisplay.textContent = "Correct!";
+            } else {
+                resultDisplay.textContent = "Wrong!";
+            }
+
+            // Move to next question or finish quiz
+            currentIndex++;
+            if (currentIndex < currentQuestions.length) {
+                displayQuestion(currentQuestions[currentIndex]); // Move to the next question
+            } else {
+                document.getElementById('questionContainer').innerHTML = "Quiz completed!";
+                document.getElementById('submitAnswer').style.display = 'none';  // Hide the submit button
+            }
+        }
+
+        window.onload = loadQuiz;  // Load the quiz when the window loads
+    </script>
+</body>
+</html>

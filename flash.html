@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #flashcardContainer {
+            cursor: pointer;
+            padding: 20px;
+            border: 1px solid #ccc;
+            width: 300px;
+            text-align: center;
+            margin: 20px auto;
+            background-color: #f9f9f9;
+        }
+        #nextButton { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Learn with Flashcards</h1>
+    <div id="flashcardContainer" onclick="toggleMeaning()">
+        Click to see meaning
+    </div>
+    <button id="nextButton" onclick="nextFlashcard()">Next Flashcard</button>
+
+    <script>
+        let flashcards = [];
+        let currentFlashcardIndex = 0;
+
+        function loadFlashcards() {
+            fetch('http://localhost:5000/get_flashcards') // Update this URL to your Flask server's URL
+            .then(response => response.json())
+            .then(data => {
+                flashcards = data;
+                if (flashcards.length > 0) {
+                    displayFlashcard(flashcards[currentFlashcardIndex]);
+                } else {
+                    document.getElementById('flashcardContainer').textContent = "No flashcards available";
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching flashcards:', error);
+                document.getElementById('flashcardContainer').textContent = "Error loading flashcards.";
+            });
+        }
+
+        function displayFlashcard(flashcard) {
+            const container = document.getElementById('flashcardContainer');
+            container.textContent = flashcard.Word;  // Display the word
+            container.dataset.meaning = flashcard.Meaning;  // Store the meaning to toggle later
+        }
+
+        function toggleMeaning() {
+            const container = document.getElementById('flashcardContainer');
+            if (container.textContent === container.dataset.meaning) {
+                container.textContent = flashcards[currentFlashcardIndex].Word;  // Toggle back to the word
+            } else {
+                container.textContent = container.dataset.meaning;  // Show the meaning
+            }
+        }
+
+        function nextFlashcard() {
+            currentFlashcardIndex++;
+            if (currentFlashcardIndex < flashcards.length) {
+                displayFlashcard(flashcards[currentFlashcardIndex]);
+            } else {
+                document.getElementById('flashcardContainer').textContent = "You've reached the end of the flashcards!";
+                document.getElementById('nextButton').style.display = 'none'; // Hide next button
+            }
+        }
+
+        window.onload = loadFlashcards;
+    </script>
+</body>
+</html>
