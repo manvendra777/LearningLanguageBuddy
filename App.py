@@ -23,8 +23,8 @@ app = Flask(__name__)
 CORS(app)
 
 # AWS Configuration
-aws_access_key_id = os.getenv('AKIAVRUVPKRZNL4IHF66')
-aws_secret_access_key = os.getenv('F9O5B8VzMnBThT9Si4TFTsG8o/xb0XOyHsUH/0UK')
+aws_access_key_id = 'ACCESS_KEY'
+aws_secret_access_key = 'SECRET'
 region_name = 'us-west-1'  # Change to your AWS region
 
 # Initialize Boto3 Clients
@@ -41,7 +41,7 @@ def register():
     password = request.json.get('password')
     email = request.json.get('email')
     client_id = "6mv8228ah6na4rqejfnsu7d21n"
-    client_secret = "1tvr420trmngmi1mqenqhq80hume25h5lqr4a1r258ih3rvt3pgb"
+    client_secret = "CLIENT_SECRET"
     secret_hash = get_secret_hash(username, client_id, client_secret)
 
     try:
@@ -67,7 +67,7 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
     client_id = "6mv8228ah6na4rqejfnsu7d21n"
-    client_secret = "1tvr420trmngmi1mqenqhq80hume25h5lqr4a1r258ih3rvt3pgb"
+    client_secret = "CLIENT_SECRET"
     secret_hash = get_secret_hash(username, client_id, client_secret)
 
     try:
