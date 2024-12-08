@@ -9,6 +9,7 @@
         label { display: block; margin-bottom: 5px; }
         #submitAnswer { margin-top: 20px; }
         #resultDisplay { margin-top: 20px; color: red; font-size: 16px; }
+        #scoreDisplay { margin-top: 20px; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -16,78 +17,106 @@
     <div id="questionContainer"></div>
     <button id="submitAnswer" onclick="submitAnswer()">Submit Answer</button>
     <div id="resultDisplay"></div>
+    <div id="scoreDisplay"></div>
 
     <script>
-        let currentQuestions = [];  // Array to store all questions
-        let currentIndex = 0;       // Index to keep track of the current question
+        let currentScore = 0; // Track the user's score
+        let currentLevel = "beginner"; // Track the user's level
+        let currentQuestions = []; // Store questions
+        let currentIndex = 0; // Current question index
 
-        // Function to load questions from the backend server
+        // Function to load questions dynamically based on the user's score
         function loadQuiz() {
-            fetch('http://localhost:5000/get_all_questions') // Update this URL to your Flask server's URL
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch questions');
-                }
-                return response.json();
-            })
-            .then(data => {
-                currentQuestions = data;
-                console.log(currentQuestions)
-                if (currentQuestions.length > 0) {
-                    displayQuestion(currentQuestions[currentIndex]); // Display the first question
-                } else {
-                    document.getElementById('questionContainer').textContent = "No questions available";
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching questions:', error);
-                document.getElementById('questionContainer').textContent = "Error loading questions.";
-            });
-        }
+        fetch('http://localhost:5000/get_questions_by_score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // Include session cookies
+            body: JSON.stringify({ score: currentScore }) // Include session cookie for authentication
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            if (data.error) {
+                document.getElementById('questionContainer').textContent = data.error;
+                return;
+            }
 
-        // Function to display the current question and its options
+            const username = data.username; // Retrieve username from response
+            currentQuestions = data.questions;
+
+            if (currentQuestions.length > 0) {
+                document.getElementById('questionContainer').innerHTML = `<h2>Welcome, ${username}</h2>`;
+                displayQuestion(currentQuestions[currentIndex]);
+            } else {
+                document.getElementById('questionContainer').textContent = "No questions available.";
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching questions:', error);
+            document.getElementById('questionContainer').textContent = "Error loading questions.";
+        });
+    }
+
+        // Function to display a question and its options
         function displayQuestion(questionObj) {
             const container = document.getElementById('questionContainer');
             container.innerHTML = `<p>${questionObj.Question}</p>`;
-            let arr = questionObj.Options.split(",")
-            arr = arr.map(function (el) {
-                    return el.trim();
-                    });
-            arr.forEach((option, index) => {
+            const options = questionObj.Options.split(",").map(option => option.trim());
+            options.forEach(option => {
                 const label = document.createElement('label');
                 label.innerHTML = `<input type="radio" name="answer" value="${option}"> ${option}<br>`;
                 container.appendChild(label);
             });
         }
 
-        // Function to check the answer
+        // Function to handle answer submission and score updates
         function submitAnswer() {
-            const selected = document.querySelector('input[name="answer"]:checked');
-            const resultDisplay = document.getElementById('resultDisplay');
+    const selected = document.querySelector('input[name="answer"]:checked');
+    if (!selected) {
+        document.getElementById('resultDisplay').textContent = "Please select an answer.";
+        return;
+    }
 
-            if (!selected) {
-                resultDisplay.textContent = "Please select an answer.";
-                return;
-            }
+    const userAnswer = selected.value;
+    const correctAnswer = currentQuestions[currentIndex]["Correct Answer"];
+    const result = userAnswer === correctAnswer ? "correct" : "wrong";
 
-            const correctAnswer = currentQuestions[currentIndex]["Correct Answer"];
-            if (selected.value === correctAnswer) {
-                resultDisplay.textContent = "Correct!";
-            } else {
-                resultDisplay.textContent = "Wrong!";
-            }
+    fetch('http://localhost:5000/update_score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: currentScore, result: result })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const previousLevel = currentLevel;  // Store the previous level
+        currentScore = data.score;
+        currentLevel = data.level;
 
-            // Move to next question or finish quiz
+        // Display result, score, and level
+        document.getElementById('resultDisplay').textContent = `Your answer is ${result}.`;
+        document.getElementById('scoreDisplay').textContent = `Current Score: ${currentScore}, Level: ${currentLevel}`;
+
+        // Check if the level has changed
+        if (currentLevel !== previousLevel) {
+            // Fetch new questions for the updated level
+            currentIndex = 0;  // Reset the question index
+            loadQuiz();  // Reload the quiz with the updated level
+        } else {
+            // Move to the next question or end quiz
             currentIndex++;
             if (currentIndex < currentQuestions.length) {
-                displayQuestion(currentQuestions[currentIndex]); // Move to the next question
+                displayQuestion(currentQuestions[currentIndex]);
             } else {
-                document.getElementById('questionContainer').innerHTML = "Quiz completed!";
-                document.getElementById('submitAnswer').style.display = 'none';  // Hide the submit button
+                document.getElementById('questionContainer').textContent = "Quiz completed!";
+                document.getElementById('submitAnswer').style.display = 'none';
             }
         }
+    })
+    .catch(error => console.error('Error updating score:', error));
+}
 
-        window.onload = loadQuiz;  // Load the quiz when the window loads
+        // Load the quiz when the page loads
+        window.onload = loadQuiz;
     </script>
 </body>
 </html>

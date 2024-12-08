@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 import boto3
 from dotenv import load_dotenv
@@ -7,6 +8,15 @@ import hmac
 import hashlib
 import base64
 
+# require('dotenv').config();
+load_dotenv()
+
+ACCESS_KEY = os.getenv("aws_access_key_id")
+SECRET = os.getenv("aws_secret_access_key")
+CLIENT_SECRET = os.getenv("client_secret")
+print(ACCESS_KEY)
+print(SECRET)
+print(CLIENT_SECRET)
 def get_secret_hash(username, client_id, client_secret):
     message = username + client_id
     dig = hmac.new(str(client_secret).encode('utf-8'),
@@ -20,18 +30,20 @@ def get_secret_hash(username, client_id, client_secret):
 load_dotenv()  # Load environment variables
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
+app.secret_key = 'myKey1234'
 
 # AWS Configuration
-aws_access_key_id = os.getenv('AKIAVRUVPKRZNL4IHF66')
-aws_secret_access_key = os.getenv('F9O5B8VzMnBThT9Si4TFTsG8o/xb0XOyHsUH/0UK')
+aws_access_key_id = ACCESS_KEY
+aws_secret_access_key = SECRET
 region_name = 'us-west-1'  # Change to your AWS region
 
 # Initialize Boto3 Clients
 cognito = boto3.client('cognito-idp', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 dynamodb = boto3.resource('dynamodb', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
-quizzes_table = dynamodb.Table('Quiz_Beginner')  # Ensure the table is created in DynamoDB
+users_table = dynamodb.Table('Users')  # Reference to the 'Users' table
 
+print(users_table)
 @app.route('/register', methods=['POST'])
 def register():
     """
@@ -41,7 +53,7 @@ def register():
     password = request.json.get('password')
     email = request.json.get('email')
     client_id = "6mv8228ah6na4rqejfnsu7d21n"
-    client_secret = "1tvr420trmngmi1mqenqhq80hume25h5lqr4a1r258ih3rvt3pgb"
+    client_secret = CLIENT_SECRET
     secret_hash = get_secret_hash(username, client_id, client_secret)
 
     try:
@@ -55,6 +67,16 @@ def register():
                 {'Name': 'email', 'Value': email}
             ]
         )
+        # Add the user to the DynamoDB Users table with default level
+        users_table.put_item(
+            Item={
+                'username': username,
+                'email': email,
+                'score': 0
+                  
+            }
+        )
+
         return jsonify({'message': 'User registered successfully', 'user': response}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -67,7 +89,7 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
     client_id = "6mv8228ah6na4rqejfnsu7d21n"
-    client_secret = "1tvr420trmngmi1mqenqhq80hume25h5lqr4a1r258ih3rvt3pgb"
+    client_secret = CLIENT_SECRET
     secret_hash = get_secret_hash(username, client_id, client_secret)
 
     try:
@@ -81,30 +103,116 @@ def login():
                 'SECRET_HASH': secret_hash
             }
         )
+        session['username'] = username
+        print(session)
         # Return the ID token and Access token directly from Cognito
         return jsonify({
             'message': 'Login successful',
-            'id_token': response['AuthenticationResult']['IdToken'],
-            'access_token': response['AuthenticationResult']['AccessToken']
+            'redirect_url': 'http://localhost:8000/quiz.html'
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 401
 
-@app.route('/get_all_questions', methods=['GET'])
-def get_all_questions():
+@app.route('/logout', methods=['POST'])
+def logout():
     """
-    Retrieve all quiz questions from DynamoDB.
+    Clear the session to log out the user.
     """
+    session.clear()
+    return jsonify({'message': 'Logged out successfully'}), 200
+# @app.route('/get_all_questions', methods=['GET'])
+# def get_all_questions():
+#     """
+#     Retrieve all quiz questions from DynamoDB.
+#     """
+#     try:
+#         response = quizzes_table.scan()
+#         questions = response.get('Items', [])
+#         if questions:
+#             # Shuffle or randomize questions if needed
+#             import random
+#             random.shuffle(questions)
+#             return jsonify(questions), 200
+#         else:
+#             return jsonify({'message': 'No questions available'}), 404
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+@app.route('/get_questions_by_score', methods=['POST'])
+def get_questions_by_score():
+    """
+    Retrieve questions from the appropriate table based on the user's score.
+    """
+    print(session)
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'Unauthorized access. Please log in.'}), 401
+    score = request.json.get('score', 0)  # Ensure score is sent in the request body
+    print(score)
+    # Determine the correct table based on the score
+    if score < 100:
+        table_name = 'Quiz_Beginner'
+    elif score > 200:
+        table_name = 'Quiz_Advanced'
+    else:
+        table_name = 'Quiz_Intermediate'
+
     try:
-        response = quizzes_table.scan()
+        quiz_table = dynamodb.Table(table_name)  # Dynamically select the table
+        response = quiz_table.scan()
         questions = response.get('Items', [])
         if questions:
-            # Shuffle or randomize questions if needed
             import random
-            random.shuffle(questions)
-            return jsonify(questions), 200
+            random.shuffle(questions)  # Shuffle questions for randomness
+            return jsonify({'username': username, 'questions': questions}), 200
         else:
-            return jsonify({'message': 'No questions available'}), 404
+            return jsonify({'message': f'No questions available in {table_name}'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/update_score', methods=['POST'])
+def update_score():
+    """
+    Update the user's score based on the quiz result and update their level in the Users table.
+    """
+    username = request.json.get('username')  # Assume username is passed in the request
+    score = request.json.get('score', 0)
+    result = request.json.get('result')  # 'correct' or 'wrong'
+
+    # Update score based on result
+    if result == 'correct':
+        score += 10  # Increment score for correct answers
+    elif result == 'wrong':
+        score -= 5  # Decrement score for wrong answers
+
+    # Ensure score does not drop below zero
+    if score < 0:
+        score = 0
+
+    # Determine proficiency level
+    if score < 100:
+        level = 'beginner'
+    elif score > 200:
+        level = 'advanced'
+    else:
+        level = 'intermediate'
+
+    try:
+        # Fetch the user's current level from the Users table
+        response = users_table.get_item(Key={'username': username})
+        current_level = response.get('Item', {}).get('level', 'beginner')
+
+        # Update the level in the Users table if it has changed
+        if current_level != level:
+            users_table.update_item(
+                Key={'username': username},
+                UpdateExpression='SET level = :level',
+                ExpressionAttributeValues={':level': level}
+            )
+        print(jsonify({'score': score, 'level': level}))
+        return jsonify({'score': score, 'level': level}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
