@@ -117,24 +117,86 @@ button:active {
 }
 
 /* Quiz Styles */
+
+#questionContainer label {
+    all: unset; /* Reset all inherited styles */
+    display: flex; /* Ensure horizontal alignment of radio button and text */
+    align-items: center; /* Vertically align radio button and text */
+    margin: 5px 0; /* Add spacing between options */
+    font-size: 18px; /* Set font size for readability */
+    line-height: normal; /* Ensure no extra spacing */
+}
+
+#questionContainer input[type="radio"] {
+    appearance: auto; /* Reset any custom browser styling */
+    margin-right: 8px; /* Add spacing between radio button and text */
+}
+
+#questionContainer {
+    text-align: left; /* Align content to the left */
+    display: block; /* Ensure normal block layout */
+}
+
 .question-container {
-    margin-bottom: 20px; /* Added margin to separate question from options */
+    /* margin-bottom: 30px; */
+    text-align: left;
+    all: unset;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 18px;
+    line-height: 1.5;
 }
 
 input[type="radio"] {
-    margin-right: 10px;
+    all: unset; /* Reset browser styles */
+    margin-right: 8px; /* Add spacing between radio button and text */
+    appearance: radio; /* Ensure standard radio button styling */
 }
 
 label {
-    display: block;
+    all: unset; /* Reset inherited styles */
+    display: block; /* Ensure each label is on its own line */
     font-size: 18px;
-    color: #333;
-    margin: 10px 0;
+    line-height: 1.5;
+    margin-bottom: 5px;
 }
 
-/* Option container spacing */
-.option-container {
-    margin-bottom: 20px; /* More gap between the options and the next element */
+button {
+    background-color: #0061F2;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #D9E1F4;
+}
+
+.result-display {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #333;
+}
+
+.score-display {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.error {
+    color: #e74c3c;
+    margin-top: 20px;
+}
+
+.message {
+    margin-top: 10px;
+    color: green;
 }
 
 /* For mobile responsiveness */
