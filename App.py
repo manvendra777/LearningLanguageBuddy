@@ -11,7 +11,6 @@ import requests
 import openai
 
 
-# require('dotenv').config();
 load_dotenv()
 
 OPENROUTER_API_KEY = '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'  # Replace with your OpenRouter API key
@@ -23,9 +22,6 @@ openai.api_key = OPENROUTER_API_KEY
 ACCESS_KEY = os.getenv("aws_access_key_id")
 SECRET = os.getenv("aws_secret_access_key")
 CLIENT_SECRET = os.getenv("client_secret")
-print(ACCESS_KEY)
-print(SECRET)
-print(CLIENT_SECRET)
 def get_secret_hash(username, client_id, client_secret):
     message = username + client_id
     dig = hmac.new(str(client_secret).encode('utf-8'),
@@ -33,26 +29,19 @@ def get_secret_hash(username, client_id, client_secret):
     d2 = base64.b64encode(dig).decode()
     return d2
 
-
-
-
-load_dotenv()  # Load environment variables
-
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'myKey1234'
 
-# AWS Configuration
-aws_access_key_id = ACCESS_KEY
-aws_secret_access_key = SECRET
-region_name = 'us-west-1'  # Change to your AWS region
-
 # Initialize Boto3 Clients
-cognito = boto3.client('cognito-idp', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
-dynamodb = boto3.resource('dynamodb', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+cognito = boto3.client('cognito-idp', region_name='us-west-1', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET)
+dynamodb = boto3.resource('dynamodb', region_name='us-west-1', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET)
 users_table = dynamodb.Table('Users')  # Reference to the 'Users' table
 response = users_table.scan()
+<<<<<<< HEAD
 print(response)
+=======
+>>>>>>> 5ddeb98d10a0733504a90ff3e5786e51d6a819b2
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -86,8 +75,6 @@ def register():
                   
             }
         )
-        temp = users_table.scan()
-        print(temp)
         return jsonify({'message': 'User registered successfully', 'user': response}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -115,7 +102,6 @@ def login():
             }
         )
         session['username'] = username
-        print(session)
         # Return the ID token and Access token directly from Cognito
         return jsonify({
             'message': 'Login successful',
@@ -132,6 +118,7 @@ def logout():
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
 
+<<<<<<< HEAD
 # @app.route('/get_all_questions', methods=['GET'])
 # def get_all_questions():
 #     """
@@ -149,19 +136,36 @@ def logout():
 #             return jsonify({'message': 'No questions available'}), 404
 #     except Exception as e:
 #         return jsonify({'error': str(e)}), 500
+=======
+@app.route('/get_all_questions', methods=['GET'])
+def get_all_questions():
+    """
+    Retrieve all quiz questions from DynamoDB.
+    """
+    try:
+        response = quizzes_table.scan()
+        questions = response.get('Items', [])
+        if questions:
+            # Shuffle or randomize questions if needed
+            import random
+            random.shuffle(questions)
+            return jsonify(questions), 200
+        else:
+            return jsonify({'message': 'No questions available'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+>>>>>>> 5ddeb98d10a0733504a90ff3e5786e51d6a819b2
 
 @app.route('/get_questions_by_score', methods=['POST'])
 def get_questions_by_score():
     """
     Retrieve questions from the appropriate table based on the user's score.
     """
-    print(session)
     username = session.get('username')
+    tableInfo = users_table.get_item(Key={'username': username})
+    score = tableInfo.get('Item', {}).get('score', 0)
     if not username:
         return jsonify({'error': 'Unauthorized access. Please log in.'}), 401
-    score = request.json.get('score', 0)  # Ensure score is sent in the request body
-    print(score)
-    # Determine the correct table based on the score
     if score < 100:
         table_name = 'Quiz_Beginner'
     elif score > 200:
@@ -176,7 +180,7 @@ def get_questions_by_score():
         if questions:
             import random
             random.shuffle(questions)  # Shuffle questions for randomness
-            return jsonify({'username': username, 'questions': questions}), 200
+            return jsonify({'username': username, 'questions': questions, 'score': score}), 200
         else:
             return jsonify({'message': f'No questions available in {table_name}'}), 404
     except Exception as e:
@@ -190,7 +194,8 @@ def update_score():
     Update the user's score based on the quiz result and update their level in the Users table.
     """
     username = session.get('username')  # Assume username is passed in the request
-    score = request.json.get('score', 0)
+    tableInfo = users_table.get_item(Key={'username': username})
+    score = tableInfo.get('Item', {}).get('score', 0)
     result = request.json.get('result')  # 'correct' or 'wrong'
 
     # Update score based on result
@@ -199,7 +204,7 @@ def update_score():
     elif result == 'wrong':
         score -= 5  # Decrement score for wrong answers
 
-    # Ensure score does not drop below zero
+    # Ensure score does not drop below zer
     if score < 0:
         score = 0
 
@@ -212,8 +217,6 @@ def update_score():
         level = 'intermediate'
 
     try:
-        # Fetch the user's current level from the Users table
-        print(username)
         response = users_table.get_item(Key={'username': username})
         current_level = response.get('Item', {}).get('score', 0)
 
@@ -224,7 +227,6 @@ def update_score():
                 UpdateExpression='SET score = :score',
                 ExpressionAttributeValues={':score': score}
             )
-        print(jsonify({'score': score, 'level': level}))
         return jsonify({'score': score, 'level': level}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -253,17 +255,32 @@ def evaluate_answer():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/get_flashcards', methods=['GET'])
+@app.route('/get_flashcards', methods=['POST'])
 def get_flashcards():
     """
     Retrieve all flashcards from DynamoDB.
     """
+    username = session.get('username')
+    tableInfo = users_table.get_item(Key={'username': username})
+    score = tableInfo.get('Item', {}).get('score', 0)
+    if not username:
+        return jsonify({'error': 'Unauthorized access. Please log in.'}), 401
+    # Determine the correct table based on the score
+    if score < 100:
+        table_name = 'Flash_Beginner'
+    elif score > 200:
+        table_name = 'Flash_Advanced'
+    else:
+        table_name = 'Flash_Intermediate'
+
     try:
-        flashcards_table = dynamodb.Table('Flash_Beginner')  # Make sure this table exists in your DynamoDB
+        flashcards_table = dynamodb.Table(table_name)  # Make sure this table exists in your DynamoDB
         response = flashcards_table.scan()
         flashcards = response.get('Items', [])
         if flashcards:
-            return jsonify(flashcards), 200
+            import random
+            random.shuffle(flashcards)
+            return jsonify({'flashcards': flashcards, 'score' : score}), 200
         else:
             return jsonify({'message': 'No flashcards available'}), 404
     except Exception as e:

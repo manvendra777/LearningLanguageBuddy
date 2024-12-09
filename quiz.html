@@ -35,6 +35,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            currentScore = data.score;
             console.log(data)
             if (data.error) {
                 document.getElementById('questionContainer').textContent = data.error;
@@ -83,9 +84,9 @@
 
     fetch('http://localhost:5000/update_score', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json'},
         credentials: 'include',
-        body: JSON.stringify({ score: currentScore, result: result })
+        body: JSON.stringify({ result: result })
     })
     .then(response => response.json())
     .then(data => {
