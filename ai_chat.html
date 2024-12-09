@@ -52,15 +52,24 @@
             background-color: #0056b3;
         }
     </style>
+    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
+    <div class="navbar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="flash.html">Flashcards</a>
+        <a href="ai_chat.html">Practice with AI</a>
+        <a href="#" id="logoutButton" style="float: right;">Logout</a>
+    </div>
+    <div class="content">
     <h1>AI English Learning Chat</h1>
     <div id="chatContainer" class="chat-container"></div>
     <div id="inputContainer">
         <input id="messageInput" type="text" placeholder="Type your message..." />
         <button onclick="sendMessage()">Send</button>
     </div>
-
+    </div>
     <script>
         const chatContainer = document.getElementById('chatContainer');
         const messageInput = document.getElementById('messageInput');
@@ -99,6 +108,21 @@
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
         }
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('http://localhost:5000/logout', {
+                method: 'POST', // Assuming logout is a POST request
+                credentials: 'include' // Needed to handle sessions if cookies are used
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the backend sends some sort of confirmation the session was cleared
+                console.log('Logout successful:', data.message);
+                window.location.href = 'register.html'; // Redirect to the registration page
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        });
     </script>
 </body>
 </html>

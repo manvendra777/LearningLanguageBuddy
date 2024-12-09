@@ -11,14 +11,23 @@
         #resultDisplay { margin-top: 20px; color: red; font-size: 16px; }
         #scoreDisplay { margin-top: 20px; font-size: 16px; font-weight: bold; }
     </style>
+    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
+    <div class="navbar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="flash.html">Flashcards</a>
+        <a href="ai_chat.html">Practice with AI</a>
+        <a href="#" id="logoutButton" style="float: right;">Logout</a>
+    </div>
+    <div class="content">
     <h1>Quiz Time!</h1>
     <div id="questionContainer"></div>
     <button id="submitAnswer" onclick="submitAnswer()">Submit Answer</button>
     <div id="resultDisplay"></div>
     <div id="scoreDisplay"></div>
-
+    </div>
     <script>
         let currentScore = 0; // Track the user's score
         let currentLevel = "beginner"; // Track the user's level
@@ -116,7 +125,23 @@
     })
     .catch(error => console.error('Error updating score:', error));
 }
+document.getElementById('logoutButton').addEventListener('click', function() {
+    fetch('http://localhost:5000/logout', {
+        method: 'POST', // Assuming logout is a POST request
+        credentials: 'include' // Needed to handle sessions if cookies are used
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Assuming the backend sends some sort of confirmation the session was cleared
+        console.log('Logout successful:', data.message);
+        window.location.href = 'register.html'; // Redirect to the registration page
+    })
+    .catch(error => {
+        console.error('Logout failed:', error);
+    });
+});
 
+        
         // Load the quiz when the page loads
         window.onload = loadQuiz;
     </script>

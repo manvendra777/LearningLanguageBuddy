@@ -38,10 +38,6 @@ cognito = boto3.client('cognito-idp', region_name='us-west-1', aws_access_key_id
 dynamodb = boto3.resource('dynamodb', region_name='us-west-1', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET)
 users_table = dynamodb.Table('Users')  # Reference to the 'Users' table
 response = users_table.scan()
-<<<<<<< HEAD
-print(response)
-=======
->>>>>>> 5ddeb98d10a0733504a90ff3e5786e51d6a819b2
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -105,7 +101,7 @@ def login():
         # Return the ID token and Access token directly from Cognito
         return jsonify({
             'message': 'Login successful',
-            'redirect_url': 'http://localhost:8000/quiz.html'
+            'redirect_url': 'http://localhost:8000/dashboard.html'
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 401
@@ -118,25 +114,6 @@ def logout():
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
 
-<<<<<<< HEAD
-# @app.route('/get_all_questions', methods=['GET'])
-# def get_all_questions():
-#     """
-#     Retrieve all quiz questions from DynamoDB.
-#     """
-#     try:
-#         response = quizzes_table.scan()
-#         questions = response.get('Items', [])
-#         if questions:
-#             # Shuffle or randomize questions if needed
-#             import random
-#             random.shuffle(questions)
-#             return jsonify(questions), 200
-#         else:
-#             return jsonify({'message': 'No questions available'}), 404
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-=======
 @app.route('/get_all_questions', methods=['GET'])
 def get_all_questions():
     """
@@ -154,7 +131,7 @@ def get_all_questions():
             return jsonify({'message': 'No questions available'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
->>>>>>> 5ddeb98d10a0733504a90ff3e5786e51d6a819b2
+
 
 @app.route('/get_questions_by_score', methods=['POST'])
 def get_questions_by_score():

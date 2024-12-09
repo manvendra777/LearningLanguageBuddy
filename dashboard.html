@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="flash.html">Flashcards</a>
+        <a href="ai_chat.html">Practice with AI</a>
+        <a href="#" id="logoutButton" style="float: right;">Logout</a>
+    </div>
+
+    <div class="content">
+        <h1>Welcome to Learning Language Buddy</h1>
+        <p>Select one of the options to get started!</p>
+    </div>
+    <script>
+        document.getElementById('logoutButton').addEventListener('click', function() {
+    fetch('http://localhost:5000/logout', {
+        method: 'POST', // Assuming logout is a POST request
+        credentials: 'include' // Needed to handle sessions if cookies are used
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Assuming the backend sends some sort of confirmation the session was cleared
+        console.log('Logout successful:', data.message);
+        window.location.href = 'register.html'; // Redirect to the registration page
+    })
+    .catch(error => {
+        console.error('Logout failed:', error);
+    });
+});
+    </script>
+</body>
+</html>

@@ -17,14 +17,23 @@
         }
         #nextButton { margin-top: 20px; }
     </style>
+    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
+    <div class="navbar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="flash.html">Flashcards</a>
+        <a href="ai_chat.html">Practice with AI</a>
+        <a href="#" id="logoutButton" style="float: right;">Logout</a>
+    </div>
+    <div class="content">
     <h1>Learn with Flashcards</h1>
     <div id="flashcardContainer" onclick="toggleMeaning()">
         Click to see meaning
     </div>
     <button id="nextButton" onclick="nextFlashcard()">Next Flashcard</button>
-
+    </div>
     <script>
         let flashcards = [];
         let currentFlashcardIndex = 0;
@@ -75,7 +84,21 @@
                 document.getElementById('nextButton').style.display = 'none'; // Hide next button
             }
         }
-
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('http://localhost:5000/logout', {
+                method: 'POST', // Assuming logout is a POST request
+                credentials: 'include' // Needed to handle sessions if cookies are used
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the backend sends some sort of confirmation the session was cleared
+                console.log('Logout successful:', data.message);
+                window.location.href = 'register.html'; // Redirect to the registration page
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        });
         window.onload = loadFlashcards;
     </script>
 </body>
