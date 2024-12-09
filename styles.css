@@ -1,0 +1,282 @@
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('bg.png'); /* Path to your background image */
+    background-size: cover;  /* Ensures the image covers the entire page */
+    background-position: center;  /* Centers the image */
+    background-attachment: fixed;  /* Keeps the background fixed while scrolling */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background-color: #0061F2;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.navbar a:hover {
+    background-color: #D9E1F4;
+}
+
+/* Content */
+.content {
+    text-align: center;
+    margin-top: 80px;
+    max-width: 500px;
+    width: 100%;
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2em;
+    color: #2A2D39;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #0061F2;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px; /* Added margin to ensure space between button and other elements */
+}
+
+button:hover {
+    background-color: #D9E1F4;
+}
+
+button:disabled {
+    background-color: #A3C1E5;
+    cursor: not-allowed;
+}
+
+button:active {
+    background-color: #0048C5;
+}
+
+/* Flashcard Styles */
+#flashcardContainer {
+    cursor: pointer;
+    background-color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px; /* Added more space between flashcards */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#flashcardContainer:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.flashcard-word {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    background-color: #0061F2;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px; /* Added margin for more space below */
+}
+
+.flashcard-meaning {
+    font-size: 1.2em;
+    background-color: #D9E1F4;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    display: none; /* Initially hide the meaning */
+}
+
+/* Quiz Styles */
+.question-container {
+    margin-bottom: 20px; /* Added margin to separate question from options */
+}
+
+input[type="radio"] {
+    margin-right: 10px;
+}
+
+label {
+    display: block;
+    font-size: 18px;
+    color: #333;
+    margin: 10px 0;
+}
+
+/* Option container spacing */
+.option-container {
+    margin-bottom: 20px; /* More gap between the options and the next element */
+}
+
+/* For mobile responsiveness */
+@media (max-width: 600px) {
+    .content {
+        padding: 10px;
+    }
+
+    #flashcardContainer {
+        padding: 20px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+
+    label {
+        font-size: 16px;
+    }
+}
+
+/* Chat container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: 50vh; /* Reduced height to ensure it doesn't take too much space */
+    max-height: 400px; /* Added max-height to limit the chat area */
+    overflow-y: auto;
+    background-color: white; /* White container for the chat */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+/* User's message style (blue, right-aligned) */
+.user-message {
+    background-color: #007bff; /* Blue */
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    align-self: flex-end; /* Right-aligned */
+    margin: 5px 0;
+    word-wrap: break-word;
+}
+
+/* AI's message style (green, left-aligned) */
+.ai-message {
+    background-color: #28a745; /* Green */
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    align-self: flex-start; /* Left-aligned */
+    margin: 5px 0;
+    word-wrap: break-word;
+}
+
+/* Input container styling */
+#inputContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+}
+
+/* Input field */
+#messageInput {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
+
+/* Send button */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Centering the container */
+.background-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Container styling */
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+/* Form styles */
+form {
+    margin-bottom: 20px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+

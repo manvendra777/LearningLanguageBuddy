@@ -5,24 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register / Login</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .tabs { display: flex; justify-content: center; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; cursor: pointer; font-size: 18px; border-bottom: 2px solid transparent; }
-        .tab.active { border-bottom: 2px solid #007BFF; font-weight: bold; }
-        .form-container { max-width: 400px; margin: 0 auto; }
-        form { display: none; }
-        form.active { display: block; }
-        label { display: block; margin-bottom: 5px; }
-        input { display: block; width: 100%; margin-bottom: 15px; padding: 10px; font-size: 16px; }
-        button { padding: 10px 20px; font-size: 16px; width: 100%; }
-        .message { color: red; margin-top: 20px; text-align: center; }
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            background-image: url('bg.png'); /* Replace 'background.jpg' with your image file */
+            background-size: cover;
+            background-position: center;
+        }
+        .tabs { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            margin: 0 auto;
+            margin-bottom: 20px; 
+        }
+        .tab-container {
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
+            
+        }
+        .tab { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            border-bottom: 2px solid transparent; 
+        }
+        .tab.active { 
+            border-bottom: 2px solid #007BFF; 
+            font-weight: bold; 
+        }
+        .form-container { 
+            max-width: 400px; 
+            margin: 0 auto; 
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        form { 
+            display: none; 
+        }
+        form.active { 
+            display: block; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+        }
+        input { 
+            display: block; 
+            width: 94%; 
+            margin-bottom: 15px; 
+            padding: 10px; 
+            font-size: 16px; 
+        }
+        button { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            width: 100%; 
+        }
+        .message { 
+            color: red; 
+            margin-top: 20px; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
-    <h1>Welcome</h1>
-    <div class="tabs">
-        <div class="tab active" id="registerTab" onclick="toggleForm('register')">Register</div>
-        <div class="tab" id="loginTab" onclick="toggleForm('login')">Login</div>
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" id="registerTab" onclick="toggleForm('register')">Register</div>
+            <div class="tab" id="loginTab" onclick="toggleForm('login')">Login</div>
+        </div>
     </div>
     <div class="form-container">
         <!-- Register Form -->
