@@ -1,6 +1,8 @@
 from flask import Flask, send_from_directory, redirect
 
-app = Flask(__name__, static_folder='.')
+# app = Flask(__name__, static_folder='.')
+app = Flask(__name__)
+application = app  # for AWS compatibility
 
 # Redirect root to 'register.html'
 @app.route('/')
@@ -36,5 +38,5 @@ def ai_chat():
 def navbar():
     return send_from_directory(app.static_folder, 'navbar.css')
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8000, debug=True)
