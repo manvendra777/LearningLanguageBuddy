@@ -29,7 +29,7 @@
     </div>
     <div class="content">
     <h1>Learn with Flashcards</h1>
-    <div id="flashcardContainer" onclick="toggleMeaning()">
+    <div id="flashcardContainer" class="flashcard" onclick="toggleMeaning()">
         Click to see meaning
     </div>
     <button id="nextButton" onclick="nextFlashcard()">Next Flashcard</button>
@@ -39,14 +39,13 @@
         let currentFlashcardIndex = 0;
         let currentScore = 0;
         function loadFlashcards() {
-            fetch('http://localhost:5000/get_flashcards', {
+            fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/get_flashcards', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ score: currentScore })}) // Update this URL to your Flask server's URL
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 flashcards = data.flashcards;
                 if (flashcards.length > 0) {
                     displayFlashcard(flashcards[currentFlashcardIndex]);
@@ -85,7 +84,7 @@
             }
         }
         document.getElementById('logoutButton').addEventListener('click', function() {
-            fetch('http://localhost:5000/logout', {
+            fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/logout', {
                 method: 'POST', // Assuming logout is a POST request
                 credentials: 'include' // Needed to handle sessions if cookies are used
             })

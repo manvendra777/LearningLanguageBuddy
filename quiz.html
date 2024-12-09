@@ -22,11 +22,13 @@
         <a href="#" id="logoutButton" style="float: right;">Logout</a>
     </div>
     <div class="content">
-    <h1>Quiz Time!</h1>
-    <div id="questionContainer"></div>
-    <button id="submitAnswer" onclick="submitAnswer()">Submit Answer</button>
-    <div id="resultDisplay"></div>
-    <div id="scoreDisplay"></div>
+        <div class="quiz-container">
+            <div id="questionContainer" class="question"></div>
+            <div class="options"></div> <!-- Use this div to append options as needed -->
+            <button id="submitAnswer" onclick="submitAnswer()">Submit Answer</button>
+            <div id="resultDisplay"></div>
+            <div id="scoreDisplay"></div>
+        </div>
     </div>
     <script>
         let currentScore = 0; // Track the user's score
@@ -36,7 +38,7 @@
 
         // Function to load questions dynamically based on the user's score
         function loadQuiz() {
-        fetch('http://localhost:5000/get_questions_by_score', {
+        fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/get_questions_by_score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include', // Include session cookies
@@ -45,7 +47,6 @@
         .then(response => response.json())
         .then(data => {
             currentScore = data.score;
-            console.log(data)
             if (data.error) {
                 document.getElementById('questionContainer').textContent = data.error;
                 return;
@@ -91,7 +92,7 @@
     const correctAnswer = currentQuestions[currentIndex]["Correct Answer"];
     const result = userAnswer === correctAnswer ? "correct" : "wrong";
 
-    fetch('http://localhost:5000/update_score', {
+    fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/update_score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         credentials: 'include',
@@ -126,7 +127,7 @@
     .catch(error => console.error('Error updating score:', error));
 }
 document.getElementById('logoutButton').addEventListener('click', function() {
-    fetch('http://localhost:5000/logout', {
+    fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/logout', {
         method: 'POST', // Assuming logout is a POST request
         credentials: 'include' // Needed to handle sessions if cookies are used
     })

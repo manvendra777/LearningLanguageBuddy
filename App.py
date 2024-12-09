@@ -7,17 +7,14 @@ import os
 import hmac
 import hashlib
 import base64
-import requests
-import openai
+from openai import OpenAI
 
 
 load_dotenv()
 
-OPENROUTER_API_KEY = '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'  # Replace with your OpenRouter API key
+OPENROUTER_API_KEY = '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'  # Replace with your OpenRouter API key
 OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/completions'
 
-openai.api_base = "https://openrouter.ai/api/v1"
-openai.api_key = OPENROUTER_API_KEY
 
 ACCESS_KEY = os.getenv("aws_access_key_id")
 SECRET = os.getenv("aws_secret_access_key")
@@ -269,28 +266,29 @@ def chat_ai():
     Handle AI chat interactions using OpenRouter API with openai.ChatCompletion.create.
     """
     user_message = request.json.get('message', '')
-
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=OPENROUTER_API_KEY,
+        )
+    print(user_message)
+    print(client)
     try:
         # Create the chat completion
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",  # Replace with your desired model
             messages=[
-                {"role": "system", "content": "You are an English learning assistant."},
+                {"role": "system", "content": "When a user inputs a sentence in English that includes common language learning errors (such as incorrect verb tenses, preposition misuse, or incorrect pluralization), the model should:\n1. Identify and gently correct the error.\n2. Provide the corrected form of the sentence.\n3. Offer a brief explanation of the correction to help the user understand the rule.\n4. Continue the conversation by asking a related question, using the correct form, to encourage further practice. \n5. Should keep the previous conversation as context in memory. \nExample Input: \nUser: I go to the park yesterday.\nExpected Model Response:\nGPT: It sounds like you had a nice time! Just a quick correction: it should be \"I went to the park yesterday,\" since we use \"went\" as the past tense of \"go.\" What did you do at the park?\nthis was just the example. Remember it and answer based on the user input. If the sentence is grammatically correct, continue the conversation forward based on user's input. If it is wrong, suggest changes and continue conversation"},
                 {"role": "user", "content": user_message}
             ],
-            headers={
-                "HTTP-Referer": "http://localhost:8000",  # Optional, update with your app's URL
-                "X-Title": "AI English Learning Chat"  # Optional, name of your app
-            }
         )
 
         # Extract the AI's response
-        ai_message = response['choices'][0]['message']['content']
+        ai_message = response.choices[0].message.content
         return jsonify({'response': ai_message}), 200
-    except openai.error.OpenAIError as e:
+    except Exception as e:
         print(f"OpenAI API Error: {e}")
         return jsonify({'error': f"Request failed: {e}"}), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)

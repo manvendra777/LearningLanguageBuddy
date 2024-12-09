@@ -85,7 +85,7 @@
             messageInput.value = '';
 
             // Send the user's message to OpenRouter API
-            fetch('http://localhost:5000/chat_ai', { // Local endpoint to interact with OpenRouter
+            fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/chat_ai', { // Local endpoint to interact with OpenRouter
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: userMessage })
@@ -109,7 +109,7 @@
             chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
         }
         document.getElementById('logoutButton').addEventListener('click', function() {
-            fetch('http://localhost:5000/logout', {
+            fetch('http://ec2-54-193-85-32.us-west-1.compute.amazonaws.com:5000/logout', {
                 method: 'POST', // Assuming logout is a POST request
                 credentials: 'include' // Needed to handle sessions if cookies are used
             })

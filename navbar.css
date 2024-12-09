@@ -25,3 +25,46 @@ body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     padding: 16px;
     padding-top: 60px; /* Account for the fixed navbar */
 }
+
+.flashcard {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+    width: 300px; /* or any appropriate size */
+    margin: 20px auto; /* Center align the flashcard */
+    text-align: center;
+}
+
+.flashcard:hover {
+    transform: scale(1.05); /* Slightly increase size on hover */
+}
+
+.quiz-container {
+    background-color: rgba(255, 255, 255, 0.8); /* Light background for the quiz area */
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%; /* Or any appropriate width */
+    margin: auto; /* Center the quiz container */
+}
+
+.question {
+    font-size: 24px; /* Larger text for questions */
+    margin-bottom: 20px;
+}
+
+.options label {
+    display: block;
+    background: #f4f4f4;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.options input[type="radio"] {
+    margin-right: 10px;
+}
