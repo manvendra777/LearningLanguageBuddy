@@ -36,5 +36,13 @@ def ai_chat():
 def navbar():
     return send_from_directory(app.static_folder, 'navbar.css')
 
+@app.route('/styles.css')
+def style():
+    return send_from_directory(app.static_folder, 'styles.css')
+
+@app.route('/bg.png')
+def bg():
+    return send_from_directory(app.static_folder, 'bg.png')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
