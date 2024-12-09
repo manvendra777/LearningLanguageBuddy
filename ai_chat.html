@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat for Learning English</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #d1e7dd;
+        }
+        .ai-message {
+            align-self: flex-start;
+            background-color: #f8d7da;
+        }
+        #inputContainer {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI English Learning Chat</h1>
+    <div id="chatContainer" class="chat-container"></div>
+    <div id="inputContainer">
+        <input id="messageInput" type="text" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+
+        function sendMessage() {
+            const userMessage = messageInput.value.trim();
+            if (!userMessage) return;
+
+            // Display the user's message in the chat
+            appendMessage(userMessage, 'user-message');
+
+            // Clear the input field
+            messageInput.value = '';
+
+            // Send the user's message to OpenRouter API
+            fetch('http://localhost:5000/chat_ai', { // Local endpoint to interact with OpenRouter
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the AI's response in the chat
+                    appendMessage(data.response, 'ai-message');
+                })
+                .catch(error => {
+                    console.error('Error communicating with AI:', error);
+                    appendMessage('Sorry, I couldn\'t understand that. Please try again.', 'ai-message');
+                });
+        }
+
+        function appendMessage(message, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${className}`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+        }
+    </script>
+</body>
+</html>

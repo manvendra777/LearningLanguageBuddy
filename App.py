@@ -7,9 +7,18 @@ import os
 import hmac
 import hashlib
 import base64
+import requests
+import openai
+
 
 # require('dotenv').config();
 load_dotenv()
+
+OPENROUTER_API_KEY = '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'  # Replace with your OpenRouter API key
+OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/completions'
+
+openai.api_base = "https://openrouter.ai/api/v1"
+openai.api_key = OPENROUTER_API_KEY
 
 ACCESS_KEY = os.getenv("aws_access_key_id")
 SECRET = os.getenv("aws_secret_access_key")
@@ -44,6 +53,7 @@ dynamodb = boto3.resource('dynamodb', region_name=region_name, aws_access_key_id
 users_table = dynamodb.Table('Users')  # Reference to the 'Users' table
 response = users_table.scan()
 print(response)
+
 @app.route('/register', methods=['POST'])
 def register():
     """
@@ -121,6 +131,7 @@ def logout():
     """
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
+
 # @app.route('/get_all_questions', methods=['GET'])
 # def get_all_questions():
 #     """
@@ -257,6 +268,34 @@ def get_flashcards():
             return jsonify({'message': 'No flashcards available'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/chat_ai', methods=['POST'])
+def chat_ai():
+    """
+    Handle AI chat interactions using OpenRouter API with openai.ChatCompletion.create.
+    """
+    user_message = request.json.get('message', '')
+
+    try:
+        # Create the chat completion
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Replace with your desired model
+            messages=[
+                {"role": "system", "content": "You are an English learning assistant."},
+                {"role": "user", "content": user_message}
+            ],
+            headers={
+                "HTTP-Referer": "http://localhost:8000",  # Optional, update with your app's URL
+                "X-Title": "AI English Learning Chat"  # Optional, name of your app
+            }
+        )
+
+        # Extract the AI's response
+        ai_message = response['choices'][0]['message']['content']
+        return jsonify({'response': ai_message}), 200
+    except openai.error.OpenAIError as e:
+        print(f"OpenAI API Error: {e}")
+        return jsonify({'error': f"Request failed: {e}"}), 500
 
 
 if __name__ == '__main__':
